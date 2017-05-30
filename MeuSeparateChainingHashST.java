@@ -154,7 +154,16 @@ public class MeuSeparateChainingHashST<Key, Value> {
      */
     public MeuSeparateChainingHashST(int m, double alfaInf, double alfaSup) {
         // TAREFA: veja o método original e faça adaptações necessárias
-        this.m = m;
+        if (alfaInf >= alfaSup) {
+        	double aux = alfaSup;
+        	alfaSup = alfaInf;
+        	alfaInf = aux;
+        }
+        for (iPrimes = 0; m > PRIMES[iPrimes]; iPrimes++);
+        if (iPrimes == 29) 
+        	this.m = PRIMES[iPrimes-1];
+        else
+        	this.m = PRIMES[iPrimes];
         st = (SequentialSearchST<Key, Value>[]) new SequentialSearchST[m];
         for (int i = 0; i < m; i++)
             st[i] = new SequentialSearchST<Key, Value>();
@@ -208,6 +217,18 @@ public class MeuSeparateChainingHashST<Key, Value> {
         // TAREFA: veja o método original e faça adaptação para que
         //         a tabela seja redimensionada se o fator de carga
         //         passar de alfaSup.
+        if (key == null) throw new IllegalArgumentException("first argument to put() is null");
+        if (val == null) {
+            delete(key);
+            return;
+        }
+
+        // double table size if average length of list >= 10
+        if (n >= 10*m) resize(2*m);
+
+        int i = hash(key);
+        if (!st[i].contains(key)) n++;
+        st[i].put(key, val);
     } 
 
     // delete key (and associated value) if key is in the table
