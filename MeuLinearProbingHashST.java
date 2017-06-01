@@ -133,13 +133,13 @@ public class MeuLinearProbingHashST<Key, Value> {
         // TAREFA: veja o método original e faça as adaptações necessárias
         if (alfaInf >= alfaSup)
             throw new IllegalArgumentException("alfaInf >= alfaSup");
-        this.m = m;
         this.alfaInf = alfaInf;
         this.alfaSup = alfaSup;
         n = 0;
-        for (iPrimes = 0; PRIMES[iPrimes] <= this.m; iPrimes++);
-        if (PRIMES[iPrimes-1] >= m || PRIMES[iPrimes] < m)
-            throw new IllegalArgumentException("DEU RUINZAO");
+        for (iPrimes = 0; PRIMES[iPrimes] < m; iPrimes++);
+        //if (PRIMES[iPrimes-1] >= m || PRIMES[iPrimes] < m)
+        //    throw new IllegalArgumentException("DEU RUINZAO Rabbit Lindo!");
+        this.m = PRIMES[iPrimes];
         keys = (Key[]) new Object[this.m];
         vals = (Value[]) new Object[this.m];
     }
@@ -217,7 +217,13 @@ public class MeuLinearProbingHashST<Key, Value> {
         if (val == null) delete(key);
 
         alfa = (double) n/m;
-        if (alfa > alfaSup) resize(++iPrimes);
+        if (alfa >= ALFASUP_DEFAULT && iPrimes <= PRIMES.length) {
+            iPrimes++;
+            resize(iPrimes);
+        }
+        else if (alfa >= ALFASUP_DEFAULT && iPrimes > PRIMES.length) {
+            resize(m*2);
+        }
 
         int i;
         for (i = hash(key); keys[i] != null; i = (i+1)%m) {
@@ -262,7 +268,10 @@ public class MeuLinearProbingHashST<Key, Value> {
         n--;
 
         alfa = (double) n/m;
-        if (n > 0 && alfa < alfaInf) resize(--iPrimes);
+        if (n > 0 && alfa < ALFAINF_DEFAULT && iPrimes > 0) {
+            iPrimes--;
+            resize(iPrimes);
+        }
 
         assert check();
     }
