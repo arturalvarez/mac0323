@@ -136,7 +136,7 @@ public class MeuLinearProbingHashST<Key, Value> {
         this.alfaInf = alfaInf;
         this.alfaSup = alfaSup;
         n = 0;
-        for (iPrimes = 0; PRIMES[iPrimes] < m; iPrimes++);
+        for (iPrimes = 0; m > PRIMES[iPrimes]; iPrimes++);
         //if (PRIMES[iPrimes-1] >= m || PRIMES[iPrimes] < m)
         //    throw new IllegalArgumentException("DEU RUINZAO Rabbit Lindo!");
         this.m = PRIMES[iPrimes];
@@ -217,13 +217,11 @@ public class MeuLinearProbingHashST<Key, Value> {
         if (val == null) delete(key);
 
         alfa = (double) n/m;
-        if (alfa >= ALFASUP_DEFAULT && iPrimes <= PRIMES.length) {
+        if (alfa >= ALFASUP_DEFAULT) {
             iPrimes++;
-            resize(iPrimes);
-        }
-        else if (alfa >= ALFASUP_DEFAULT && iPrimes > PRIMES.length) {
             resize(m*2);
         }
+
 
         int i;
         for (i = hash(key); keys[i] != null; i = (i+1)%m) {
@@ -345,14 +343,15 @@ public class MeuLinearProbingHashST<Key, Value> {
         // TAREFA
         int maior = 0, cont  = 0;
         for (int i = 0; i < m; i++) {
-            if (keys[i] == null) {
-                if (cont > maior) {
+            if (vals[i] == null) {
+                if (cont > maior)
                     maior = cont;
-                    cont = 0;
-                }        
+                cont = 0;
             }
-            cont++;
+            else 
+                cont++;
         }
+        if (maior < cont) return cont;
         return maior;
     }
 
@@ -366,10 +365,9 @@ public class MeuLinearProbingHashST<Key, Value> {
      */ 
     public int numClusters() {
         // TAREFA
-        int cont = 0;
+        int cont = 0, j;
         for (int i = 0; i < m; i++) {
-            if (keys[i] != null) {
-                int j;
+            if (vals[i] != null) {
                 cont++;
                 for (j = i; keys[j] != null; j++);
                 i = j;
