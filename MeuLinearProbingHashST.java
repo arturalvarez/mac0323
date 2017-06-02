@@ -135,11 +135,11 @@ public class MeuLinearProbingHashST<Key, Value> {
             throw new IllegalArgumentException("alfaInf >= alfaSup");
         this.alfaInf = alfaInf;
         this.alfaSup = alfaSup;
-        n = 0;
         for (iPrimes = 0; m > PRIMES[iPrimes]; iPrimes++);
         //if (PRIMES[iPrimes-1] >= m || PRIMES[iPrimes] < m)
         //    throw new IllegalArgumentException("DEU RUINZAO Rabbit Lindo!");
         this.m = PRIMES[iPrimes];
+        n = 0;
         keys = (Key[]) new Object[this.m];
         vals = (Value[]) new Object[this.m];
     }
@@ -195,12 +195,14 @@ public class MeuLinearProbingHashST<Key, Value> {
         //         o tamanho da nova tabela seja PRIMES[k].
         MeuLinearProbingHashST<Key, Value> temp = new MeuLinearProbingHashST<Key, Value>(PRIMES[k], alfaInf, alfaSup);
         for (int i = 0; i < m; i++) {
-            if (keys[i] != null)
+            if (keys[i] != null) {
                 temp.put(keys[i], vals[i]);
+            }
         }
-        keys = temp.keys;
-        vals = temp.vals;
-        m = PRIMES[k];
+        this.keys = temp.keys;
+        this.vals = temp.vals;
+        this.m = PRIMES[k];
+	this.iPrimes = temp.iPrimes;
     }
 
     /**
@@ -214,12 +216,17 @@ public class MeuLinearProbingHashST<Key, Value> {
         // TAREFA: veja o método original e faça adaptação para que
         //         a tabela seja redimensionada se o fator de carga
         //         passar de alfaSup.
-        if (val == null) delete(key);
+        if (key == null) throw new IllegalArgumentException("first argument to put() is null");
+
+        if (val == null) {
+            delete(key);
+            return;
+        }
 
         alfa = (double) n/m;
-        if (alfa >= ALFASUP_DEFAULT) {
+        if (alfa >= alfaSup) {
             iPrimes++;
-            resize(m*2);
+            resize(iPrimes);
         }
 
 
@@ -241,6 +248,7 @@ public class MeuLinearProbingHashST<Key, Value> {
         // TAREFA: veja o método original e adapte para que a tabela 
         //         seja redimensionada sempre que o fator de carga for menor que
         //         alfaInf.
+        if (key == null) throw new IllegalArgumentException("argument to delete() is null");
         if (!contains(key)) return;
 
         int i = hash(key);
@@ -266,7 +274,7 @@ public class MeuLinearProbingHashST<Key, Value> {
         n--;
 
         alfa = (double) n/m;
-        if (n > 0 && alfa < ALFAINF_DEFAULT && iPrimes > 0) {
+        if (n > 0 && iPrimes > 0 && alfa <= alfaInf) {
             iPrimes--;
             resize(iPrimes);
         }
